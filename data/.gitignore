@@ -1,0 +1,31 @@
+
+# Python environments
+venv/
+newspaper_env/
+
+# Detectron2 source repository
+detectron2/
+
+# Model checkpoint
+model_weights/
+
+# Downloaded newspaper images
+downloaded_newspapers/
+
+# Generated dataset (crops and metadata)
+dataset/
+
+# Downloaded source JSON files
+json_files/
+
+
+# Local test outputs and checkpoints
+tests/local_test_results/
+tests/*.pth
+
+# macOS
+.DS_Store
+
+# Python cache
+__pycache__/
+*.py[cod]
