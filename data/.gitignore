@@ -18,7 +18,6 @@ dataset/
 # Downloaded source JSON files
 json_files/
 
-
 # Local test outputs and checkpoints
 tests/local_test_results/
 tests/*.pth
@@ -29,3 +28,5 @@ tests/*.pth
 # Python cache
 __pycache__/
 *.py[cod]
+
+detectron2/
