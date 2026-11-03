@@ -41,6 +41,18 @@ CATEGORY_FOLDERS = {
     "Advertisement": "advertisement",
 }
 
+'''
+CATEGORY_FOLDERS = {
+    "Illustration/Photograph": "illustration_photograph",
+    "Photograph": "photograph",
+    "Comics/Cartoon": "comics_cartoon",
+    "Editorial Cartoon": "editorial_cartoon",
+    "Map": "map",
+    "Headline": "headline",
+    "Advertisement": "advertisement",
+}
+'''
+
 
 # Headline detections are deliberately excluded.
 EXCLUDED_CLASSES = {"Headline"}
