@@ -15,9 +15,6 @@ downloaded_newspapers/
 # Generated dataset (crops and metadata)
 dataset/
 
-# Downloaded source JSON files
-json_files/
-
 # Local test outputs and checkpoints
 tests/local_test_results/
 tests/*.pth
