@@ -1,3 +1,3 @@
 """
-Repeated image threshold via embeddings
+Repeated image by threshold using image embeddings
 """

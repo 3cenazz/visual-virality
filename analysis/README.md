@@ -12,4 +12,4 @@ python -m analysis.run_analysis_pipeline
 ```
 
 ## Stored files
-- `dataset/analysis/running_dist.parquet`: metadata plus rolling novelty scores
+- `running_dist.csv`: image metadata and computed dissimilairty and surprisal scores
