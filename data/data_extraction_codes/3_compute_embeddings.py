@@ -12,6 +12,8 @@ Output (in --out-dir):
   embeddings_<model>_meta.csv  same row order: crop_filename, date, category, ...
   metadata_all.json            (only with --dataset) all per-page metadata merged
   chunks_<model>/              checkpoints; re-running the same command resumes
+                               (with --ckpt-dir they go there instead and are
+                               deleted after a successful run)
 
 Works with OneDrive "Files On-Demand": images are fetched in parallel, download
 timeouts are retried, and on macOS files that were cloud-only before are evicted
@@ -25,6 +27,12 @@ Usage:
   python 3_compute_embeddings.py \
       --dataset "~/Library/CloudStorage/OneDrive-epfl.ch/Dateien von Ecenaz Egri - dataset" \
       --exclude Advertisement
+
+  # write results straight into the shared OneDrive folder, keep checkpoints out of it:
+  python 3_compute_embeddings.py \
+      --dataset "~/Library/CloudStorage/OneDrive-epfl.ch/Dateien von Ecenaz Egri - dataset" \
+      --out-dir "~/Library/CloudStorage/OneDrive-epfl.ch/Dateien von Ecenaz Egri - dataset/embeddings" \
+      --ckpt-dir /tmp/vv_ckpt --exclude Advertisement
 
   # optional, CLIP instead of ResNet-18 (pip install transformers):
   python 3_compute_embeddings.py --meta metadata.json --crops-dir crops/ --model clip
@@ -144,6 +152,8 @@ def main():
                                        "(default with --dataset: <dataset>/images)")
     p.add_argument("--model", choices=["resnet18", "clip"], default="resnet18")
     p.add_argument("--out-dir", default="embeddings_out")
+    p.add_argument("--ckpt-dir", help="where to keep checkpoints and the evict helper "
+                                      "(default: inside --out-dir); deleted after a successful run")
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--chunk-size", type=int, default=512, help="images per checkpoint")
     p.add_argument("--workers", type=int, default=32, help="parallel file reads/downloads")
@@ -158,8 +168,10 @@ def main():
         a.crops_dir = a.crops_dir or os.path.join(a.dataset, "images")
     elif not a.crops_dir:
         p.error("--crops-dir is required with --meta")
+    a.out_dir = os.path.expanduser(a.out_dir)
     os.makedirs(a.out_dir, exist_ok=True)
-    ckpt_dir = os.path.join(a.out_dir, f"chunks_{a.model}")
+    work_dir = os.path.expanduser(a.ckpt_dir) if a.ckpt_dir else a.out_dir
+    ckpt_dir = os.path.join(work_dir, f"chunks_{a.model}")
     os.makedirs(ckpt_dir, exist_ok=True)
 
     # ---- metadata
@@ -175,7 +187,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
     print("Device:", device)
     tf, encode = load_model(a.model, device)
-    evict = None if a.keep_downloaded else build_evict_helper(a.out_dir)
+    evict = None if a.keep_downloaded else build_evict_helper(work_dir)
 
     def load(i):
         path = os.path.join(a.crops_dir, meta.at[i, "crop_filename"])
@@ -244,6 +256,8 @@ def main():
     print(f"\nSaved {emb.shape[0]:,} x {emb.shape[1]} embeddings to {a.out_dir}/")
     if len(kept) < n:
         print(f"{n - len(kept):,} images could not be opened (missing or broken files)")
+    if a.ckpt_dir:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
